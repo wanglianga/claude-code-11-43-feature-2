@@ -1,0 +1,16 @@
+event_id,serving_uid,school_id,window,served_at,production_ref,portions,device,source_system
+SE-A-001,SVP-A-0001,A,dinner,2026-09-04 17:40,PB-A-0401,90,WT-A-1,window-log
+SE-A-002,SVP-A-0002,A,night,2026-09-04 23:55,PB-A-0401,40,WT-A-1,window-log
+SE-A-003,SVP-A-0003,A,night,2026-09-05 00:25,PB-A-0401,12,WT-A-1,window-log
+SE-A-004,SVP-A-0004,A,breakfast,2026-09-05 07:10,PB-A-0501,120,WT-A-1,window-log
+SE-A-005,SVP-A-0004,A,breakfast,2026-09-05 07:11,PB-A-0501,120,POS-A-1,pos-sync
+SE-A-006,SVP-A-0005,A,breakfast,2026-09-05 07:10,PB-A-0501,1,WT-A-1,window-log
+SE-A-007,SVP-A-0006,A,lunch,2026-09-05 11:45,PB-A-0402,80,WT-A-1,window-log
+SE-A-008,SVP-A-0007,A,dinner,2026-09-04 18:10,PB-A-0402,110,WT-A-1,window-log
+SE-A-009,SVP-A-0008,A,dinner,2026-09-04 18:30,PB-A-0403,60,WT-A-1,window-log
+SE-A-010,SVP-A-0009,A,night,2026-09-04 23:20,,45,WT-A-2,window-log
+SE-A-011,SVP-A-0010,A,,2026-09-05 00:35,,30,WT-A-2,window-log
+SE-A-012,SVP-A-0011,A,,2026-09-05,,20,WT-A-1,window-log
+SE-A-013,SVP-A-0012,A,,2026-09-05 00:45,,25,WT-A-2,window-log
+SE-B-001,SVP-B-0001,B,,2026-09-05 07:15,,50,WT-B-1,window-log
+SE-B-002,SVP-B-0002,B,express,2026-09-05 07:20,PB-B-0501,30,WT-B-1,window-log

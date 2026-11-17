@@ -1,0 +1,3 @@
+issue_id,item_text,qty,unit,issued_at,production_ref,device
+ISS-B-01,小米,5,kg,2026-09-05 05:30,PB-B-0501,KT-B-1
+ISS-B-02,鸡蛋,1,kg,2026-09-05 05:35,,KT-B-1

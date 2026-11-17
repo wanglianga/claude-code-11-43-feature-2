@@ -504,6 +504,41 @@ textarea:focus {
   gap: 6px;
   flex-wrap: wrap;
 }
+
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.progress-inner {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 4px;
+  transition: width 0.2s ease;
+}
+
+.period-block {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: #fcfdfe;
+}
+.period-block > summary {
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 0;
+}
+.period-block[open] > summary {
+  margin-bottom: 8px;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 6px;
+}
+.period-block table.data {
+  font-size: 12px;
+}
 .candidate-card {
   border: 1px solid var(--border);
   border-radius: 8px;

@@ -4,18 +4,24 @@ import { useAppState } from '../state/AppState';
 import { computeBatchStats } from '../lib/batchStats';
 import { BATCH_LABEL, SOURCE_SCHEMAS } from '../lib/schema';
 import { CoverageDonut } from '../components/Coverage';
-import { Badge } from '../components/Badges';
+import { Badge, CorrelationBadge } from '../components/Badges';
 import { shortHash } from '../lib/hash';
 import { Drawer } from '../components/Drawer';
 import type { MetricDetail } from '../types';
 
 export function OverviewPage() {
-  const { dataset, currentRun, mappingState } = useAppState();
+  const { dataset, currentRun, mappingState, correlationRuns, latestCorrelationRunId } = useAppState();
   const [metric, setMetric] = useState<MetricDetail | null>(null);
 
   const stats = useMemo(
     () => (dataset && currentRun ? computeBatchStats(dataset, currentRun) : []),
     [dataset, currentRun],
+  );
+
+  const latestCorrelation = useMemo(
+    () =>
+      correlationRuns.find((r) => r.summary.runId === latestCorrelationRunId) ?? correlationRuns[0],
+    [correlationRuns, latestCorrelationRunId],
   );
 
   if (!dataset || !currentRun || !mappingState) return null;
@@ -56,6 +62,43 @@ export function OverviewPage() {
       <div className="card">
         <h2>三桶证据覆盖（按领餐记录）</h2>
         <CoverageDonut coverage={c} />
+      </div>
+
+      <div className="card">
+        <h2>供餐周期时间关联（多源事件 → 供餐周期）</h2>
+        {latestCorrelation ? (
+          <>
+            <div className="grid cols-4">
+              <div className="stat confirmed">
+                <div className="label"><CorrelationBadge status="CONFIRMED" /></div>
+                <div className="value">{latestCorrelation.summary.counts.CONFIRMED}</div>
+              </div>
+              <div className="stat candidate">
+                <div className="label"><CorrelationBadge status="CANDIDATE" /></div>
+                <div className="value">{latestCorrelation.summary.counts.CANDIDATE}</div>
+              </div>
+              <div className="stat unknown">
+                <div className="label"><CorrelationBadge status="CONFLICT" /></div>
+                <div className="value">{latestCorrelation.summary.counts.CONFLICT}</div>
+              </div>
+              <div className="stat">
+                <div className="label"><CorrelationBadge status="UNGROUNDED" /></div>
+                <div className="value">{latestCorrelation.summary.counts.UNGROUNDED}</div>
+              </div>
+            </div>
+            <p className="muted" style={{ fontSize: 12, marginTop: 10 }}>
+              最新关联运行 <Link to="/correlation"><b className="mono">{latestCorrelation.summary.runId}</b></Link>：
+              唯一发餐 {latestCorrelation.summary.uniqueServings} 次（重复上报 {latestCorrelation.summary.duplicateServingReports} 条），
+              固定引用 {latestCorrelation.summary.timeSettingsVersion} / {latestCorrelation.summary.calendarVersion} / {latestCorrelation.summary.relationsVersion}。
+              领料、制作、发餐事件按学校当地日历与业务日归属供餐周期；跨午夜窗口、校时区段与转供记录均参与判定。
+            </p>
+          </>
+        ) : (
+          <p className="muted" style={{ margin: 0 }}>
+            尚未生成时间关联运行。前往 <Link to="/correlation">时间关联运行</Link> 新建；
+            供餐日历与来源时间设置在 <Link to="/calendar">供餐日历与时间</Link> 维护，转供记录在 <Link to="/relations">批次关系</Link> 维护。
+          </p>
+        )}
       </div>
 
       <div className="card">
@@ -109,7 +152,9 @@ export function OverviewPage() {
             </tr>
           </thead>
           <tbody>
-            {stats.map((s) => (
+            {stats.map((s) => {
+              const isEventBatch = ['material_issues', 'production_batches', 'serving_events'].includes(s.meta.sourceType);
+              return (
               <tr key={s.meta.batchId}>
                 <td>
                   <Link to="/sources">{BATCH_LABEL(s.meta)}</Link>
@@ -127,12 +172,21 @@ export function OverviewPage() {
                 <td className="num">{s.validRows}</td>
                 <td className="num">{s.duplicateRows > 0 ? <b style={{ color: 'var(--issue)' }}>{s.duplicateRows}</b> : 0}</td>
                 <td className="num">{s.missingKeyRows > 0 ? <b style={{ color: 'var(--issue)' }}>{s.missingKeyRows}</b> : 0}</td>
-                <td className="num" style={{ color: 'var(--confirmed)', fontWeight: 700 }}>{s.linkedRows}</td>
-                <td className="num" style={{ color: 'var(--candidate)', fontWeight: 700 }}>{s.candidateRows}</td>
-                <td className="num" style={{ color: 'var(--unknown)', fontWeight: 700 }}>{s.unknownRows}</td>
+                {isEventBatch ? (
+                  <td className="num" colSpan={3}>
+                    <Link to="/correlation" style={{ fontSize: 12 }}>供餐周期关联见时间关联运行 →</Link>
+                  </td>
+                ) : (
+                  <>
+                    <td className="num" style={{ color: 'var(--confirmed)', fontWeight: 700 }}>{s.linkedRows}</td>
+                    <td className="num" style={{ color: 'var(--candidate)', fontWeight: 700 }}>{s.candidateRows}</td>
+                    <td className="num" style={{ color: 'var(--unknown)', fontWeight: 700 }}>{s.unknownRows}</td>
+                  </>
+                )}
                 <td className="mono muted">{s.fileHash ? shortHash(s.fileHash) : '—'}</td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         <p className="muted" style={{ fontSize: 12, marginTop: 10 }}>

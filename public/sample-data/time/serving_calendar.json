@@ -1,0 +1,17 @@
+{
+  "calendarVersion": "cal-v1",
+  "updatedAt": "2026-09-06T09:00:00+08:00",
+  "description": "供餐日历（虚构数据）：学校 + 窗口 + 餐别 + 业务日 + 实际开放区间 + 临时调整；开放区间允许跨午夜与重叠",
+  "periods": [
+    { "periodId": "P-A-0904-B", "schoolId": "A", "window": "breakfast", "mealType": "早餐", "businessDay": "2026-09-04", "openAt": "2026-09-04T06:30:00+08:00", "closeAt": "2026-09-04T08:30:00+08:00" },
+    { "periodId": "P-A-0904-L", "schoolId": "A", "window": "lunch", "mealType": "午餐", "businessDay": "2026-09-04", "openAt": "2026-09-04T11:00:00+08:00", "closeAt": "2026-09-04T13:00:00+08:00" },
+    { "periodId": "P-A-0904-D", "schoolId": "A", "window": "dinner", "mealType": "晚餐", "businessDay": "2026-09-04", "openAt": "2026-09-04T17:00:00+08:00", "closeAt": "2026-09-04T19:00:00+08:00" },
+    { "periodId": "P-A-0904-N", "schoolId": "A", "window": "night", "mealType": "夜宵", "businessDay": "2026-09-04", "openAt": "2026-09-04T21:00:00+08:00", "closeAt": "2026-09-05T00:00:00+08:00" },
+    { "periodId": "P-A-0905-B", "schoolId": "A", "window": "breakfast", "mealType": "早餐", "businessDay": "2026-09-05", "openAt": "2026-09-05T06:30:00+08:00", "closeAt": "2026-09-05T08:30:00+08:00" },
+    { "periodId": "P-A-0905-L", "schoolId": "A", "window": "lunch", "mealType": "午餐", "businessDay": "2026-09-05", "openAt": "2026-09-05T11:00:00+08:00", "closeAt": "2026-09-05T13:00:00+08:00" },
+    { "periodId": "P-A-0905-D", "schoolId": "A", "window": "dinner", "mealType": "晚餐", "businessDay": "2026-09-05", "openAt": "2026-09-05T17:00:00+08:00", "closeAt": "2026-09-05T19:00:00+08:00" },
+    { "periodId": "P-B-0905-B", "schoolId": "B", "window": "breakfast", "mealType": "早餐", "businessDay": "2026-09-05", "openAt": "2026-09-05T06:30:00+08:00", "closeAt": "2026-09-05T08:30:00+08:00" },
+    { "periodId": "P-B-0905-BX", "schoolId": "B", "window": "express", "mealType": "早餐", "businessDay": "2026-09-05", "openAt": "2026-09-05T07:00:00+08:00", "closeAt": "2026-09-05T09:00:00+08:00" },
+    { "periodId": "P-B-0905-L", "schoolId": "B", "window": "lunch", "mealType": "午餐", "businessDay": "2026-09-05", "openAt": "2026-09-05T11:00:00+08:00", "closeAt": "2026-09-05T13:00:00+08:00" }
+  ]
+}

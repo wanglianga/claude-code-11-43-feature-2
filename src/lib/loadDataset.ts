@@ -1,9 +1,12 @@
 import type {
+  BatchRelationsDocument,
   LoadedBatch,
   Manifest,
   MappingDocument,
   RawRow,
+  ServingCalendarDocument,
   StandardIngredient,
+  TimeSettingsDocument,
 } from '../types';
 import { parseCsv } from './csv';
 import { sha256 } from './hash';
@@ -14,6 +17,10 @@ export interface Dataset {
   manifest: Manifest;
   standards: StandardIngredient[];
   seedMapping: MappingDocument;
+  /** 时间关联分析三份独立维护的资料（种子版本，进入 IndexedDB 后各自修订） */
+  timeSettingsSeed: TimeSettingsDocument;
+  calendarSeed: ServingCalendarDocument;
+  relationsSeed: BatchRelationsDocument;
   loadedBatches: LoadedBatch[];
   /** batchId -> 原始行（PENDING 批次为空数组） */
   rowsByBatch: Record<string, RawRow[]>;
@@ -50,8 +57,16 @@ function flattenDiet(json: { restrictions: Array<Record<string, unknown>> }, bat
 export async function loadDataset(): Promise<Dataset> {
   const manifestText = await fetchText('manifest.json');
   const manifest: Manifest = JSON.parse(manifestText);
-  const standards: StandardIngredient[] = JSON.parse(await fetchText('standard_ingredients.json'));
-  const seedMapping: MappingDocument = JSON.parse(await fetchText('seed_mappings.json'));
+  const standardsText = await fetchText('standard_ingredients.json');
+  const standards: StandardIngredient[] = JSON.parse(standardsText);
+  const seedMappingText = await fetchText('seed_mappings.json');
+  const seedMapping: MappingDocument = JSON.parse(seedMappingText);
+  const timeSettingsText = await fetchText('time/source_time_settings.json');
+  const timeSettingsSeed: TimeSettingsDocument = JSON.parse(timeSettingsText);
+  const calendarText = await fetchText('time/serving_calendar.json');
+  const calendarSeed: ServingCalendarDocument = JSON.parse(calendarText);
+  const relationsText = await fetchText('time/batch_relations.json');
+  const relationsSeed: BatchRelationsDocument = JSON.parse(relationsText);
 
   const loadedBatches: LoadedBatch[] = [];
   const rowsByBatch: Record<string, RawRow[]> = {};
@@ -81,9 +96,24 @@ export async function loadDataset(): Promise<Dataset> {
 
   const metaHashes = {
     manifest: await sha256(manifestText),
-    standard_ingredients: await sha256(await fetchText('standard_ingredients.json')),
-    seed_mappings: await sha256(await fetchText('seed_mappings.json')),
+    standard_ingredients: await sha256(standardsText),
+    seed_mappings: await sha256(seedMappingText),
+    source_time_settings: await sha256(timeSettingsText),
+    serving_calendar: await sha256(calendarText),
+    batch_relations: await sha256(relationsText),
   };
 
-  return { manifest, standards, seedMapping, loadedBatches, rowsByBatch, dietRows, hashes, metaHashes };
+  return {
+    manifest,
+    standards,
+    seedMapping,
+    timeSettingsSeed,
+    calendarSeed,
+    relationsSeed,
+    loadedBatches,
+    rowsByBatch,
+    dietRows,
+    hashes,
+    metaHashes,
+  };
 }

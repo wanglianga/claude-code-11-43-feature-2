@@ -46,6 +46,24 @@ export const SOURCE_SCHEMAS: Record<SourceType, SourceSchema> = {
     keyFields: ['studentAnonId'],
     expectedFields: ['studentAnonId', 'schoolId', 'avoidAllergens', 'effectiveFrom', 'effectiveTo'],
   },
+  material_issues: {
+    sourceType: 'material_issues',
+    label: '厨房领料',
+    keyFields: ['issue_id'],
+    expectedFields: ['issue_id', 'item_text', 'qty', 'unit', 'issued_at', 'device'],
+  },
+  production_batches: {
+    sourceType: 'production_batches',
+    label: '制作批次',
+    keyFields: ['production_id'],
+    expectedFields: ['production_id', 'recipe_id', 'dish_name', 'start_at', 'finish_at', 'device'],
+  },
+  serving_events: {
+    sourceType: 'serving_events',
+    label: '窗口发餐日志',
+    keyFields: ['event_id'],
+    expectedFields: ['event_id', 'serving_uid', 'school_id', 'served_at', 'device', 'source_system'],
+  },
 };
 
 export const FIELD_STATUS_LABEL: Record<FieldStatus, string> = {

@@ -1,0 +1,17 @@
+{
+  "relationsVersion": "rel-v1",
+  "updatedAt": "2026-09-05T08:00:00+08:00",
+  "description": "批次关系（虚构数据）：领料→制作、制作→发餐的明确引用记录在事件行内；此处保存可补录的转供记录",
+  "transfers": [
+    {
+      "transferId": "TR-A-01",
+      "productionRef": "PB-A-0401",
+      "toSchoolId": "A",
+      "toWindow": "night",
+      "toBusinessDay": "2026-09-04",
+      "note": "晚餐海鲜炒饭剩余制成品凭留样转供夜宵窗口",
+      "evidence": "留样记录 LY-0904-11 + 转供单 ZG-0904-03",
+      "recordedAt": "2026-09-04T20:10:00+08:00"
+    }
+  ]
+}

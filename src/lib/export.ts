@@ -1,4 +1,4 @@
-import type { AnalysisRun, EvidenceBucket } from '../types';
+import type { AnalysisRun, CorrelationRun, CorrelationStatus, EvidenceBucket } from '../types';
 
 export const BUCKET_LABEL: Record<EvidenceBucket, string> = {
   CONFIRMED: '有证据支持的匹配',
@@ -126,6 +126,123 @@ export function assessmentsToCsv(run: AnalysisRun): string {
 
 export function downloadCsv(filename: string, csv: string): void {
   triggerDownload(new Blob([csv], { type: 'text/csv;charset=utf-8' }), filename);
+}
+
+// ---------- 供餐周期时间关联导出 ----------
+
+export const CORRELATION_STATUS_LABEL: Record<CorrelationStatus, string> = {
+  CONFIRMED: '已确认',
+  CANDIDATE: '仍有候选',
+  CONFLICT: '时间冲突',
+  UNGROUNDED: '缺少依据',
+};
+
+/** 关联运行导出载荷：明细与统计引用同一次关联运行，版本固定 */
+export interface CorrelationExport {
+  exportKind: 'serving-period-correlation-run';
+  exportedAt: string;
+  runId: string;
+  taskId: string;
+  ruleVersion: string;
+  timeSettingsVersion: string;
+  calendarVersion: string;
+  relationsVersion: string;
+  mappingVersion: string;
+  inputFileHashes: Record<string, string>;
+  scope: CorrelationRun['summary']['scope'];
+  counts: CorrelationRun['summary']['counts'];
+  uniqueServings: number;
+  duplicateServingReports: number;
+  perPeriod: CorrelationRun['summary']['perPeriod'];
+  periods: CorrelationRun['periods'];
+  transfers: CorrelationRun['transfers'];
+  events: CorrelationRun['events'];
+  caliberNotes: string[];
+  disclaimer: string;
+}
+
+export function buildCorrelationExport(run: CorrelationRun, exportedAt: string): CorrelationExport {
+  return {
+    exportKind: 'serving-period-correlation-run',
+    exportedAt,
+    runId: run.summary.runId,
+    taskId: run.summary.taskId,
+    ruleVersion: run.summary.ruleVersion,
+    timeSettingsVersion: run.summary.timeSettingsVersion,
+    calendarVersion: run.summary.calendarVersion,
+    relationsVersion: run.summary.relationsVersion,
+    mappingVersion: run.summary.mappingVersion,
+    inputFileHashes: run.summary.inputHashes,
+    scope: run.summary.scope,
+    counts: run.summary.counts,
+    uniqueServings: run.summary.uniqueServings,
+    duplicateServingReports: run.summary.duplicateServingReports,
+    perPeriod: run.summary.perPeriod,
+    periods: run.periods,
+    transfers: run.transfers,
+    events: run.events,
+    caliberNotes: [
+      '已确认：有明确引用（批次/窗口/转供）且时间不矛盾；候选：仅时间邻近，未自动确认',
+      '时间冲突：明确引用与时间矛盾，冲突保留并指出原始行，未抹掉引用改配',
+      '缺少依据：无引用且无开放区间，或跨餐次使用缺少转供记录；不推断发生过或没有发生',
+      '唯一发餐数按物理事件标识去重；真实两次发餐即使时间相同也分别计数',
+    ],
+    disclaimer:
+      '本文件中的「缺少依据/仍有候选」表示当前来源缺少证据，不等于该餐次确认未使用该原料；接收方不得据此作出「未发生」结论。',
+  };
+}
+
+export function correlationEventsToCsv(run: CorrelationRun): string {
+  const header = [
+    'event_key',
+    'event_type',
+    'ref_id',
+    'school_id',
+    'status',
+    'period_ids',
+    'raw_time',
+    'precision',
+    'normalized_earliest_ms',
+    'normalized_latest_ms',
+    'clock_correction',
+    'received_at',
+    'batch_id',
+    'row_id',
+    'window',
+    'production_ref',
+    'duplicate_of',
+    'basis_note',
+    'conflict_note',
+  ];
+  const lines = [header.join(',')];
+  run.events.forEach((e) => {
+    lines.push(
+      [
+        e.eventKey,
+        e.eventType,
+        e.refId,
+        e.schoolId,
+        CORRELATION_STATUS_LABEL[e.status],
+        e.periodIds.join(';'),
+        e.time.rawText,
+        e.time.precision,
+        String(e.time.earliestMs),
+        String(e.time.latestMs),
+        e.time.correction ? `${e.time.correction.segmentId}(${e.time.correction.offsetMinutes}min)` : '',
+        e.receivedAt ?? '',
+        e.batchId,
+        e.rowId,
+        e.window,
+        e.productionRef,
+        e.duplicateOf ?? '',
+        e.basisNote,
+        e.conflictNote ?? '',
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(','),
+    );
+  });
+  return '﻿' + lines.join('\n');
 }
 
 function triggerDownload(blob: Blob, filename: string): void {

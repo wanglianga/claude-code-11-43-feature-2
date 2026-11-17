@@ -1,0 +1,46 @@
+{
+  "settingsVersion": "ts-v1",
+  "updatedAt": "2026-09-06T09:00:00+08:00",
+  "description": "来源时间设置（虚构数据）：每个时间字段的业务含义、时区声明、精度与有凭证的校时区段",
+  "schoolTimezones": { "A": "+08:00", "B": "+08:00" },
+  "sources": [
+    {
+      "sourceId": "kitchen-terminal",
+      "label": "厨房终端（领料 / 制作登记）",
+      "appliesTo": { "sourceTypes": ["material_issues", "production_batches"], "schoolId": "*" },
+      "fields": [
+        { "field": "issued_at", "meaning": "ISSUE_TIME", "precision": "minute", "timezone": null },
+        { "field": "start_at", "meaning": "PRODUCTION_START", "precision": "minute", "timezone": null },
+        { "field": "finish_at", "meaning": "PRODUCTION_FINISH", "precision": "minute", "timezone": null }
+      ],
+      "clockCorrections": [
+        {
+          "segmentId": "CC-KTA1-0901",
+          "device": "KT-A-1",
+          "validFrom": "2026-09-01T00:00:00+08:00",
+          "validTo": "2026-09-05T23:59:59+08:00",
+          "offsetMinutes": -5,
+          "evidence": "后勤维修单 WX-20260905-03：KT-A-1 终端时钟偏快 5 分钟，9/1–9/5 整段回拨（同区段全部记录共用，不逐行挑偏差）"
+        }
+      ]
+    },
+    {
+      "sourceId": "window-log",
+      "label": "窗口发餐日志",
+      "appliesTo": { "sourceTypes": ["serving_events"], "schoolId": "*" },
+      "fields": [
+        { "field": "served_at", "meaning": "SERVING_TIME", "precision": "minute", "timezone": null }
+      ],
+      "clockCorrections": []
+    },
+    {
+      "sourceId": "supplier-file",
+      "label": "供应商成分文件",
+      "appliesTo": { "sourceTypes": ["supplier_items"], "schoolId": "*" },
+      "fields": [
+        { "field": "updated_at", "meaning": "FILE_GENERATED_AT", "precision": "instant", "timezone": "+08:00" }
+      ],
+      "clockCorrections": []
+    }
+  ]
+}

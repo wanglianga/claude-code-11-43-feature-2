@@ -2,7 +2,16 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseCsv } from '../lib/csv';
 import { sha256 } from '../lib/hash';
-import type { LoadedBatch, Manifest, MappingDocument, RawRow, StandardIngredient } from '../types';
+import type {
+  BatchRelationsDocument,
+  LoadedBatch,
+  Manifest,
+  MappingDocument,
+  RawRow,
+  ServingCalendarDocument,
+  StandardIngredient,
+  TimeSettingsDocument,
+} from '../types';
 import type { Dataset } from '../lib/loadDataset';
 
 const ROOT = join(__dirname, '..', '..', 'public', 'sample-data');
@@ -35,6 +44,9 @@ export async function loadTestDataset(): Promise<Dataset> {
   const manifest: Manifest = JSON.parse(text('manifest.json'));
   const standards: StandardIngredient[] = JSON.parse(text('standard_ingredients.json'));
   const seedMapping: MappingDocument = JSON.parse(text('seed_mappings.json'));
+  const timeSettingsSeed: TimeSettingsDocument = JSON.parse(text('time/source_time_settings.json'));
+  const calendarSeed: ServingCalendarDocument = JSON.parse(text('time/serving_calendar.json'));
+  const relationsSeed: BatchRelationsDocument = JSON.parse(text('time/batch_relations.json'));
 
   const loadedBatches: LoadedBatch[] = [];
   const rowsByBatch: Record<string, RawRow[]> = {};
@@ -66,9 +78,24 @@ export async function loadTestDataset(): Promise<Dataset> {
     manifest: await sha256(text('manifest.json')),
     standard_ingredients: await sha256(text('standard_ingredients.json')),
     seed_mappings: await sha256(text('seed_mappings.json')),
+    source_time_settings: await sha256(text('time/source_time_settings.json')),
+    serving_calendar: await sha256(text('time/serving_calendar.json')),
+    batch_relations: await sha256(text('time/batch_relations.json')),
   };
 
-  return { manifest, standards, seedMapping, loadedBatches, rowsByBatch, dietRows, hashes, metaHashes };
+  return {
+    manifest,
+    standards,
+    seedMapping,
+    timeSettingsSeed,
+    calendarSeed,
+    relationsSeed,
+    loadedBatches,
+    rowsByBatch,
+    dietRows,
+    hashes,
+    metaHashes,
+  };
 }
 
 export function listSampleFiles(): string[] {

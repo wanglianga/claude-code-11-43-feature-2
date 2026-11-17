@@ -1,8 +1,8 @@
 import { openDB, type IDBPDatabase } from 'idb';
-import type { AnalysisRun, MappingState } from '../types';
+import type { AnalysisRun, CorrelationRun, CorrelationTask, MappingState } from '../types';
 
 const DB_NAME = 'campus-meal-dq';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export interface SnapshotRecord {
   id: string;
@@ -15,6 +15,8 @@ interface DBSchema {
   kv: { key: string; value: unknown };
   runs: { key: string; value: AnalysisRun };
   snapshots: { key: string; value: SnapshotRecord };
+  correlationRuns: { key: string; value: CorrelationRun };
+  correlationTasks: { key: string; value: CorrelationTask };
 }
 
 let dbPromise: Promise<IDBPDatabase<DBSchema>> | null = null;
@@ -31,6 +33,12 @@ function db() {
         }
         if (!database.objectStoreNames.contains('snapshots')) {
           database.createObjectStore('snapshots', { keyPath: 'id' });
+        }
+        if (!database.objectStoreNames.contains('correlationRuns')) {
+          database.createObjectStore('correlationRuns', { keyPath: 'summary.runId' });
+        }
+        if (!database.objectStoreNames.contains('correlationTasks')) {
+          database.createObjectStore('correlationTasks', { keyPath: 'taskId' });
         }
       },
     });
@@ -81,12 +89,50 @@ export async function getAllSnapshots(): Promise<SnapshotRecord[]> {
 
 export async function clearAll(): Promise<void> {
   const database = await db();
-  await Promise.all([database.clear('kv'), database.clear('runs'), database.clear('snapshots')]);
+  await Promise.all([
+    database.clear('kv'),
+    database.clear('runs'),
+    database.clear('snapshots'),
+    database.clear('correlationRuns'),
+    database.clear('correlationTasks'),
+  ]);
+}
+
+// ---------- 时间关联：运行与任务 ----------
+
+export async function saveCorrelationRun(run: CorrelationRun): Promise<void> {
+  await (await db()).put('correlationRuns', run);
+}
+
+export async function getAllCorrelationRuns(): Promise<CorrelationRun[]> {
+  const runs = await (await db()).getAll('correlationRuns');
+  return runs.sort((a, b) => b.summary.createdAt.localeCompare(a.summary.createdAt));
+}
+
+export async function deleteCorrelationRun(runId: string): Promise<void> {
+  await (await db()).delete('correlationRuns', runId);
+}
+
+export async function saveCorrelationTask(task: CorrelationTask): Promise<void> {
+  await (await db()).put('correlationTasks', task);
+}
+
+export async function getAllCorrelationTasks(): Promise<CorrelationTask[]> {
+  const tasks = await (await db()).getAll('correlationTasks');
+  return tasks.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function deleteCorrelationTask(taskId: string): Promise<void> {
+  await (await db()).delete('correlationTasks', taskId);
 }
 
 export const KV_KEYS = {
   mappingState: 'mapping-state',
   lastDataset: 'last-dataset',
+  timeSettingsState: 'time-settings-state',
+  calendarState: 'calendar-state',
+  relationsState: 'relations-state',
+  latestCorrelationRun: 'latest-correlation-run',
 } as const;
 
 export type { MappingState };

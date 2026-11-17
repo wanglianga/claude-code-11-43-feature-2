@@ -1,0 +1,6 @@
+issue_id,item_text,qty,unit,issued_at,production_ref,device
+ISS-A-01,高筋粉,8,kg,2026-09-04 23:40,PB-A-0501,KT-A-1
+ISS-A-02,牛奶,6,L,2026-09-05 05:20,PB-A-0501,KT-A-1
+ISS-A-03,鸡蛋,2,kg,2026-09-04,PB-A-0402,KT-A-1
+ISS-A-04,大虾,2,kg,2026-09-04 15:30,,KT-A-1
+ISS-A-05,酱油,0.2,kg,2026-09-04 16:05,PB-A-0402,KT-A-2

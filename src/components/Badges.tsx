@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import type { EvidenceBucket, FieldStatus, MatchKind } from '../types';
-import { BUCKET_LABEL } from '../lib/export';
+import type { CorrelationStatus, EvidenceBucket, FieldStatus, MatchKind } from '../types';
+import { BUCKET_LABEL, CORRELATION_STATUS_LABEL } from '../lib/export';
 import { FIELD_STATUS_LABEL } from '../lib/schema';
 
 const BUCKET_CLASS: Record<EvidenceBucket, string> = {
@@ -48,3 +48,20 @@ export function FieldStatusBadge({ status }: { status: FieldStatus }) {
 export function Badge({ tone = 'neutral', children }: { tone?: 'neutral' | 'ok' | 'issue' | 'candidate'; children: ReactNode }) {
   return <span className={`badge ${tone}`}>{children}</span>;
 }
+
+const CORR_CLASS: Record<CorrelationStatus, string> = {
+  CONFIRMED: 'confirmed',
+  CANDIDATE: 'candidate',
+  CONFLICT: 'issue',
+  UNGROUNDED: 'unknown',
+};
+
+export function CorrelationBadge({ status }: { status: CorrelationStatus }) {
+  return <span className={`badge ${CORR_CLASS[status]}`}>{CORRELATION_STATUS_LABEL[status]}</span>;
+}
+
+export const EVENT_TYPE_LABEL: Record<'ISSUE' | 'PRODUCTION' | 'SERVING', string> = {
+  ISSUE: '领料',
+  PRODUCTION: '制作',
+  SERVING: '发餐',
+};
